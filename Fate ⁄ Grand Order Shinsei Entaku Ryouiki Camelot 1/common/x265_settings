@@ -1,0 +1,12 @@
+-o {clip_output:s} - --y4m
+--csv {filename:s}_log_x265.csv --csv-log-level 2
+--preset slower
+--pme --pmode -F 16 --ctu 32 --max-tu-size 16
+--frames {frames:d} --fps {fps_num:d}/{fps_den:d} --output-depth {bits:d}
+--rd 4 --no-rect --no-amp --rskip 1 --tu-intra-depth 2 --tu-inter-depth 2
+--subme 5 --merange 48
+--no-strong-intra-smoothing
+--psy-rd 1.0 --psy-rdoq 2.0 --keyint 240 --min-keyint 23 --rc-lookahead 60 --bframes 9
+--crf 16 --aq-mode 3 --aq-strength 0.82 --no-cutree --cbqpoffs -2 --crqpoffs -2 --qcomp 0.72 --ref 5
+--deblock=-1:-1 --no-sao --no-sao-non-deblock
+--sar 1 --range limited --colorprim 1 --transfer 1 --colormatrix 1 --min-luma {min_luma:d} --max-luma {max_luma:d}
