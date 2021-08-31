@@ -1,0 +1,3 @@
+vspipe -y - movie.vpy | x265 - --y4m --crf 16 --preset slower --qp-adaptation-range 2 --qcomp 0.72 --rect --amp --output-depth 10 --rd 4 --psy-rdoq 4 --psy-rd 2 --rskip 0 --tu-intra-depth 2 --tu-inter-depth 2 --refine-mv 3 --refine-intra 4 --dynamic-refine --aq-mode 3 --aq-strength 1.02 --bframes 8 --cbqpoffs -2 --crqpoffs -2 --no-cutree --subme 7 --merange 48 --max-merge 5 --rc-lookahead 100 --keyint 240 --colorprim bt709 --colormatrix bt709 --transfer bt709 --deblock 1:-1 --no-sao --no-strong-intra-smoothing --output kimetsu1.hevc
+
+PAUSE
