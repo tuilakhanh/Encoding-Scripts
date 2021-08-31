@@ -92,7 +92,6 @@ __pycache__/
 # Misc
 *.7z
 *.avs
-*.bat
 *.cbz
 *.crt
 *.csv
