@@ -79,7 +79,7 @@ class Filtering:
 if __name__ == '__main__':
     filtered = Filtering().main()
     khanhcc = enc.Encoder(JPBD, filtered, CHAPTERS, CHAP_NAMES)
-    khanhcc.run(clean_up=True)
+    khanhcc.run()
 else:
     JPBD.clip.set_output(0)
     FILTERED = Filtering().main()

@@ -82,7 +82,7 @@ class Filtering:
 if __name__ == '__main__':
     filtered = Filtering().main()
     brrrr = enc.Encoder(JP_BD, filtered, CHAPTERS, CHAP_NAMES)
-    brrrr.run(clean_up=True)
+    brrrr.run()
 else:
     JP_BD.clip.set_output(0)
     JP_BD.clip_cut.set_output(1)

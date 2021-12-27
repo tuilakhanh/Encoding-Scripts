@@ -79,9 +79,8 @@ if __name__ == '__main__':
 
     filtered = Filtering().main()
     khanhcc = Encoding(JPBD, filtered)
-    khanhcc.chaptering(0-JPBD.frame_start)  # type: ignore
     khanhcc.run()
-    khanhcc.cleanup()
+    
 else:
     JPBD.clip_cut.set_output(0)
     FILTERED = Filtering().main()

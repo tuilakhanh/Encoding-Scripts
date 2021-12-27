@@ -1,52 +1,41 @@
 from pathlib import Path
-from typing import List, Optional, Sequence, Union, Any
+from typing import List, Optional, Sequence
 
-from bvsfunc.util.AudioProcessor import video_source
 import vapoursynth as vs
 from vardautomation import (JAPANESE, AudioStream, ChapterStream, 
                             FileInfo, MatroskaXMLChapters, Mux, 
-                            RunnerConfig, SelfRunner, X265Encoder,
-                            VideoStream, VPath,Chapter)
+                            RunnerConfig, SelfRunner, X265Encoder, QAACEncoder,
+                            VideoStream, Chapter, SoxCutter, FFmpegAudioExtracter)
 
 core = vs.core
 
-XML_TAG = 'settings/tags_aac.xml'
-
-def resolve_trims(trims: Any) -> Any:
-    """Convert list[tuple] into list[list]. begna pls"""
-    if all(isinstance(trim, tuple) for trim in trims):
-        return [list(trim) for trim in trims]
-    return trims
-
-
 class Encoder:
-    """"Regular encoding class"""
-    def __init__(self, file: FileInfo, clip: vs.VideoNode,
+    runner: SelfRunner
+    XML_TAG = 'settings/tags_aac.xml'
+
+    def __init__ (self, file: FileInfo, clip: vs.VideoNode,
                  chapter_list: Optional[List[Chapter]] = None,
                  chapter_names: Sequence[str] = ['', ''],
                  chapter_offset: Optional[int] = None) -> None:
+
         self.file = file
         self.clip = clip
         self.chapter_list = chapter_list
         self.chapter_names = chapter_names
         self.chapter_offset = chapter_offset
 
-    def run(self, clean_up: bool = True) -> None:
         assert self.file.a_src
+
+        self.v_encoder = X265Encoder('settings/x265_settings')
+        self.file.set_name_clip_output_ext('.265')
+        self.a_extracters = FFmpegAudioExtracter(self.file, track_in=1, track_out=1)
+        self.a_cutters = SoxCutter(self.file, track=1)
+        self.a_encoders = QAACEncoder(self.file, track=1, xml_tag=self.XML_TAG)
+
+    def run(self) -> None:
         assert self.file.a_enc_cut
 
-        v_encoder = X265Encoder('settings/x265_settings')
-        a_extracter = Eac3toAudioExtracter(self.file, track_in=2, track_out=1)
-
-        audio_files = video_source(self.file.path.to_str(),
-                                   trim_list=resolve_trims(self.file.trims_or_dfs),
-                                   trims_framerate=self.file.clip.fps,
-                                   flac=False, aac=True, silent=False)
-
-        audio_tracks: List[AudioStream] = []
-        for track in audio_files:
-            audio_tracks += [AudioStream(VPath(track), 'AAC 2.0', JAPANESE, XML_TAG)]
-
+        #From LightArrowExE
         if self.chapter_list:
             assert self.file.chapter
             assert self.file.trims_or_dfs
@@ -65,16 +54,19 @@ class Encoder:
         muxer = Mux(
             self.file,
             streams=(
-                VideoStream(self.file.name_clip_output, 'Encoded by TuiLaKhanh', JAPANESE),
-                audio_tracks, chapters if self.chapter_list else None
+                VideoStream(self.file.name_clip_output, 'Encoded by tuilakhanh', JAPANESE),
+                AudioStream(self.file.a_enc_cut.set_track(1), 'AAC 2.0', JAPANESE, self.XML_TAG),
+                chapters if self.chapter_list else None
             )
         )
 
-        config = RunnerConfig(v_encoder, None, None, None, None, muxer)
+        config = RunnerConfig(
+            self.v_encoder, None,
+            self.a_extracters, self.a_cutters, self.a_encoders,
+            muxer
+        )
 
-        runner = SelfRunner(self.clip, self.file, config)
-        runner.run()
+        self.runner = SelfRunner(self.clip, self.file, config)
+        self.runner.run()
 
-        if clean_up:
-            runner.do_cleanup()
-    
+        self.runner.do_cleanup()
